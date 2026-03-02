@@ -328,6 +328,33 @@ body {
   background: #20bd5a;
 }
 
+/* ----- WhatsApp flutuante ----- */
+.whatsapp-float {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: #25d366;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.45);
+  transition: background 0.2s, transform 0.2s;
+}
+.whatsapp-float:hover {
+  background: #20bd5a;
+  color: #fff;
+  transform: scale(1.05);
+}
+.whatsapp-float svg {
+  width: 28px;
+  height: 28px;
+}
+
 /* ----- Ad Slots (reserved height, no CLS) ----- */
 .ad-slot-wrap {
   display: none;

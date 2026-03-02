@@ -14,10 +14,21 @@ router.get('/slot/:code', async (req, res) => {
     let banner = await Banner.findOne({ slotId: slot._id, active: true, device }).sort({ createdAt: -1 }).lean();
     if (!banner) banner = await Banner.findOne({ slotId: slot._id, active: true, device: 'any' }).sort({ createdAt: -1 }).lean();
     if (!banner) return res.status(200).json({ slotCode: slot.code, banner: null });
-    res.json({
+    const hasSlides = banner.slides?.length > 0;
+    const payload = {
       slotCode: slot.code,
-      banner: { id: banner._id, imageUrl: banner.imageUrl, linkUrl: banner.linkUrl, alt: banner.alt, width: banner.width, height: banner.height },
-    });
+      banner: {
+        id: banner._id,
+        width: banner.width,
+        height: banner.height,
+        imageUrl: hasSlides ? banner.slides[0].imageUrl : banner.imageUrl,
+        linkUrl: hasSlides ? banner.slides[0].linkUrl : banner.linkUrl,
+        alt: hasSlides ? banner.slides[0].alt : banner.alt,
+      },
+    };
+    if (hasSlides) payload.banner.slides = banner.slides.map((s) => ({ imageUrl: s.imageUrl, linkUrl: s.linkUrl || '', alt: s.alt || '', durationSeconds: s.durationSeconds || 4 }));
+    else payload.banner.slides = null;
+    res.json(payload);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro ao buscar banner' });
@@ -38,37 +49,47 @@ export function serveAdsJs(req, res) {
   var placeholder = document.querySelector('[data-ad-slot="' + slotCode + '"] .ad-slot__placeholder');
   if (!placeholder) return;
   var device = (typeof window.innerWidth !== 'undefined' && window.innerWidth < 768) ? 'mobile' : 'desktop';
+  function toHttps(url){ if (!url || url.indexOf('http://') !== 0) return url; if (typeof location !== 'undefined' && location.protocol === 'https:') return 'https://' + url.slice(7); return url; }
   fetch(api + '/api/embed/slot/' + encodeURIComponent(slotCode) + '?device=' + device)
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
       if (!data || !data.banner) return;
       var b = data.banner;
-      if (b.imageUrl && b.imageUrl.indexOf('http://') === 0 && typeof location !== 'undefined' && location.protocol === 'https:') b.imageUrl = 'https://' + b.imageUrl.slice(7);
-      if (b.linkUrl && b.linkUrl.indexOf('http://') === 0 && typeof location !== 'undefined' && location.protocol === 'https:') b.linkUrl = 'https://' + b.linkUrl.slice(7);
+      var slides = b.slides && b.slides.length > 1 ? b.slides : null;
+      if (slides) { for (var i = 0; i < slides.length; i++) { slides[i].imageUrl = toHttps(slides[i].imageUrl); slides[i].linkUrl = toHttps(slides[i].linkUrl); } }
+      else { b.imageUrl = toHttps(b.imageUrl); b.linkUrl = toHttps(b.linkUrl); }
       var a = document.createElement('a');
-      a.href = b.linkUrl || '#';
+      a.href = slides ? slides[0].linkUrl || '#' : (b.linkUrl || '#');
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
-      a.addEventListener('click', function(){
-        fetch(api + '/api/track/click', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ slotCode: slotCode, bannerId: b.id })
-        }).catch(function(){});
-      });
+      a.addEventListener('click', function(){ fetch(api + '/api/track/click', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ slotCode: slotCode, bannerId: b.id }) }).catch(function(){}); });
       var img = document.createElement('img');
-      img.src = b.imageUrl;
-      img.alt = b.alt || 'Publicidade';
+      img.alt = slides ? (slides[0].alt || 'Publicidade') : (b.alt || 'Publicidade');
       img.loading = 'lazy';
       if (b.width) img.width = b.width;
       if (b.height) img.height = b.height;
-      a.appendChild(img);
-      placeholder.appendChild(a);
-      fetch(api + '/api/track/impression', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ slotCode: slotCode, bannerId: b.id })
-      }).catch(function(){});
+      if (slides && slides.length > 1) {
+        img.src = slides[0].imageUrl;
+        a.appendChild(img);
+        placeholder.appendChild(a);
+        var idx = 0;
+        function scheduleNext() {
+          var dur = (slides[idx].durationSeconds || 4) * 1000;
+          setTimeout(function(){
+            idx = (idx + 1) % slides.length;
+            img.src = slides[idx].imageUrl;
+            a.href = slides[idx].linkUrl || '#';
+            img.alt = slides[idx].alt || 'Publicidade';
+            scheduleNext();
+          }, dur);
+        }
+        scheduleNext();
+      } else {
+        img.src = slides ? slides[0].imageUrl : b.imageUrl;
+        a.appendChild(img);
+        placeholder.appendChild(a);
+      }
+      fetch(api + '/api/track/impression', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ slotCode: slotCode, bannerId: b.id }) }).catch(function(){});
     })
     .catch(function(){});
 })();

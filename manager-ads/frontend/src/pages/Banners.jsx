@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../App';
+import { getSlotSizes } from '../constants/slotSizes';
 
 export default function Banners() {
   const [slots, setSlots] = useState([]);
@@ -7,11 +8,13 @@ export default function Banners() {
   const [slotFilter, setSlotFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [form, setForm] = useState({ slotId: '', imageUrl: '', linkUrl: '', alt: '', active: true, device: 'any', width: '', height: '', sizePreset: '' });
+  const defaultSlide = () => ({ imageUrl: '', linkUrl: '', alt: '', durationSeconds: 4 });
+  const [form, setForm] = useState({ slotId: '', active: true, device: 'any', width: '', height: '', sizePreset: '', slides: [defaultSlide()] });
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   const selectedSlot = form.slotId ? slots.find((s) => s._id === form.slotId) : null;
-  const slotSizes = selectedSlot?.recommendedSizes || [];
+  const slotSizes = getSlotSizes(selectedSlot);
 
   const applySizePreset = (presetValue) => {
     if (!presetValue || presetValue === 'custom') {
@@ -32,23 +35,45 @@ export default function Banners() {
       .finally(() => setLoading(false));
   }, []);
 
+  const addSlide = () => setForm((f) => ({ ...f, slides: [...(f.slides || []), defaultSlide()] }));
+  const updateSlide = (index, field, value) => setForm((f) => ({
+    ...f,
+    slides: f.slides.map((s, i) => i === index ? { ...s, [field]: value } : s),
+  }));
+  const removeSlide = (index) => setForm((f) => ({
+    ...f,
+    slides: f.slides.length > 1 ? f.slides.filter((_, i) => i !== index) : f.slides,
+  }));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.slotId || !form.imageUrl?.trim()) return;
+    const validSlides = (form.slides || []).filter((s) => s.imageUrl?.trim());
+    if (!form.slotId || validSlides.length === 0) return;
     setSaving(true);
     setError('');
+    const payload = {
+      slotId: form.slotId,
+      active: form.active,
+      device: form.device,
+      width: form.width === '' ? null : Number(form.width),
+      height: form.height === '' ? null : Number(form.height),
+      slides: validSlides.map((s) => ({ ...s, durationSeconds: Math.max(1, Math.min(120, Number(s.durationSeconds) || 4)) })),
+    };
     try {
-      const payload = { ...form };
-      payload.width = form.width === '' ? null : Number(form.width);
-      payload.height = form.height === '' ? null : Number(form.height);
-      const res = await apiFetch('/api/banners', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const d = await res.json(); setError(d.error || 'Erro'); return;
+      if (editingId) {
+        const res = await apiFetch(`/api/banners/${editingId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+        if (!res.ok) {
+          const d = await res.json(); setError(d.error || 'Erro'); return;
+        }
+        setEditingId(null);
+        setForm({ slotId: '', active: true, device: 'any', width: '', height: '', sizePreset: '', slides: [defaultSlide()] });
+      } else {
+        const res = await apiFetch('/api/banners', { method: 'POST', body: JSON.stringify(payload) });
+        if (!res.ok) {
+          const d = await res.json(); setError(d.error || 'Erro'); return;
+        }
+        setForm({ slotId: '', active: true, device: 'any', width: '', height: '', sizePreset: '', slides: [defaultSlide()] });
       }
-      setForm({ slotId: '', imageUrl: '', linkUrl: '', alt: '', active: true, device: 'any', width: '', height: '', sizePreset: '' });
       loadBanners();
     } catch {
       setError('Falha ao salvar');
@@ -71,8 +96,29 @@ export default function Banners() {
     if (!confirm('Excluir este banner?')) return;
     try {
       await apiFetch(`/api/banners/${id}`, { method: 'DELETE' });
+      if (editingId === id) setEditingId(null);
       loadBanners();
     } catch {}
+  };
+
+  const startEdit = (banner) => {
+    const slotId = banner.slotId?._id || banner.slotId;
+    const device = banner.device || 'any';
+    const width = banner.width != null ? String(banner.width) : '';
+    const height = banner.height != null ? String(banner.height) : '';
+    const sizePreset = (device && width && height) ? `${device}-${width}-${height}` : (width && height ? 'custom' : '');
+    const slides = banner.slides?.length > 0
+      ? banner.slides.map((s) => ({ imageUrl: s.imageUrl || '', linkUrl: s.linkUrl || '', alt: s.alt || '', durationSeconds: s.durationSeconds || 4 }))
+      : [{ imageUrl: banner.imageUrl || '', linkUrl: banner.linkUrl || '', alt: banner.alt || '', durationSeconds: 4 }];
+    setForm({ slotId, active: banner.active !== false, device, width, height, sizePreset, slides });
+    setEditingId(banner._id);
+    setError('');
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm({ slotId: '', active: true, device: 'any', width: '', height: '', sizePreset: '', slides: [defaultSlide()] });
+    setError('');
   };
 
   const filtered = slotFilter ? banners.filter((b) => b.slotId?._id === slotFilter || b.slotId === slotFilter) : banners;
@@ -83,6 +129,9 @@ export default function Banners() {
     <>
       <h1>Banners</h1>
       <div className="card">
+        {editingId && (
+          <p style={{ marginBottom: 12, fontWeight: 500, color: '#2563eb' }}>Editando banner</p>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Slot</label>
@@ -146,22 +195,48 @@ export default function Banners() {
             </div>
           )}
           <div className="form-group">
-            <label>URL da imagem</label>
-            <input value={form.imageUrl} onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} placeholder="https://…" required />
-          </div>
-          <div className="form-group">
-            <label>Link (opcional)</label>
-            <input value={form.linkUrl} onChange={(e) => setForm((f) => ({ ...f, linkUrl: e.target.value }))} placeholder="https://…" />
-          </div>
-          <div className="form-group">
-            <label>Texto alternativo (opcional)</label>
-            <input value={form.alt} onChange={(e) => setForm((f) => ({ ...f, alt: e.target.value }))} />
+            <label>Slides (carrossel) — tempo de exibição por imagem</label>
+            {(form.slides?.length ? form.slides : [defaultSlide()]).map((slide, index) => (
+              <div key={index} className="card" style={{ marginBottom: 8, padding: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <strong>Imagem {index + 1}</strong>
+                  {(form.slides?.length ? form.slides.length : 1) > 1 && (
+                    <button type="button" className="btn btn--small btn--secondary" onClick={() => removeSlide(index)}>Remover</button>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>URL da imagem</label>
+                  <input value={slide.imageUrl} onChange={(e) => updateSlide(index, 'imageUrl', e.target.value)} placeholder="https://…" />
+                </div>
+                <div className="form-group">
+                  <label>Link (opcional)</label>
+                  <input value={slide.linkUrl} onChange={(e) => updateSlide(index, 'linkUrl', e.target.value)} placeholder="https://…" />
+                </div>
+                <div className="form-group">
+                  <label>Texto alternativo (opcional)</label>
+                  <input value={slide.alt} onChange={(e) => updateSlide(index, 'alt', e.target.value)} />
+                </div>
+                <div className="form-group">
+                  <label>Exibir por (segundos)</label>
+                  <input type="number" min={1} max={120} value={slide.durationSeconds} onChange={(e) => updateSlide(index, 'durationSeconds', e.target.value)} placeholder="4" style={{ maxWidth: 80 }} />
+                </div>
+              </div>
+            ))}
+            <button type="button" className="btn btn--secondary btn--small" onClick={addSlide}>+ Adicionar slide</button>
+            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: 6 }}>Várias imagens = carrossel. Uma imagem = banner fixo. Duração só vale no carrossel.</p>
           </div>
           <div className="form-group">
             <label><input type="checkbox" checked={form.active} onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))} /> Ativo</label>
           </div>
           {error && <p className="error">{error}</p>}
-          <button type="submit" className="btn btn--primary" disabled={saving}>{saving ? 'Salvando…' : 'Adicionar banner'}</button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button type="submit" className="btn btn--primary" disabled={saving}>
+              {saving ? 'Salvando…' : editingId ? 'Salvar alterações' : 'Adicionar banner'}
+            </button>
+            {editingId && (
+              <button type="button" className="btn btn--secondary" onClick={cancelEdit}>Cancelar</button>
+            )}
+          </div>
         </form>
       </div>
       <div className="form-group filters">
@@ -180,6 +255,7 @@ export default function Banners() {
               <th>Slot</th>
               <th>Dispositivo</th>
               <th>Tamanho</th>
+              <th>Slides</th>
               <th>Imagem</th>
               <th>Link</th>
               <th>Ativo</th>
@@ -192,10 +268,14 @@ export default function Banners() {
                 <td>{b.slotId?.code || b.slotId}</td>
                 <td>{b.device === 'any' ? 'Todos' : b.device === 'mobile' ? 'Mobile' : 'Desktop'}</td>
                 <td>{(b.width != null || b.height != null) ? `${b.width ?? '?'}×${b.height ?? '?'}` : '–'}</td>
+                <td>{b.slides?.length > 1 ? `Carrossel (${b.slides.length})` : '1'}</td>
                 <td><a href={b.imageUrl} target="_blank" rel="noopener noreferrer">Abrir</a></td>
                 <td>{b.linkUrl ? <a href={b.linkUrl} target="_blank" rel="noopener noreferrer">Link</a> : '–'}</td>
                 <td><button type="button" className="btn btn--small btn--secondary" onClick={() => toggleActive(b)}>{b.active ? 'Ativo' : 'Inativo'}</button></td>
-                <td><button type="button" className="btn btn--small btn--danger" onClick={() => remove(b._id)}>Excluir</button></td>
+                <td>
+                  <button type="button" className="btn btn--small btn--secondary" style={{ marginRight: 6 }} onClick={() => startEdit(b)}>Editar</button>
+                  <button type="button" className="btn btn--small btn--danger" onClick={() => remove(b._id)}>Excluir</button>
+                </td>
               </tr>
             ))}
           </tbody>
