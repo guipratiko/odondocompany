@@ -35,7 +35,7 @@ router.get('/slot/:code', async (req, res) => {
   }
 });
 
-// Servir ads.js: script que injeta banner e registra impressão/clique
+// Servir promo.js: script que injeta destaque e registra impressão/clique (evita ad block)
 export function serveAdsJs(req, res) {
   const api = (req.query.api || req.get('referer') || '').replace(/\/$/, '') || 'http://localhost:3001';
   res.set('Content-Type', 'application/javascript; charset=utf-8');
@@ -46,7 +46,7 @@ export function serveAdsJs(req, res) {
   var api = script.getAttribute('data-api') || '${api}';
   var slotCode = script.getAttribute('data-slot');
   if (!slotCode) return;
-  var placeholder = document.querySelector('[data-ad-slot="' + slotCode + '"] .ad-slot__placeholder');
+  var placeholder = document.querySelector('[data-slot="' + slotCode + '"] .promo-slot__placeholder');
   if (!placeholder) return;
   var device = (typeof window.innerWidth !== 'undefined' && window.innerWidth < 768) ? 'mobile' : 'desktop';
   function toHttps(url){ if (!url || url.indexOf('http://') !== 0) return url; if (typeof location !== 'undefined' && location.protocol === 'https:') return 'https://' + url.slice(7); return url; }
@@ -64,7 +64,7 @@ export function serveAdsJs(req, res) {
       a.rel = 'noopener noreferrer';
       a.addEventListener('click', function(){ fetch(api + '/api/track/click', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ slotCode: slotCode, bannerId: b.id }) }).catch(function(){}); });
       var img = document.createElement('img');
-      img.alt = slides ? (slides[0].alt || 'Publicidade') : (b.alt || 'Publicidade');
+      img.alt = slides ? (slides[0].alt || 'Destaque') : (b.alt || 'Destaque');
       img.loading = 'lazy';
       if (b.width) img.width = b.width;
       if (b.height) img.height = b.height;
@@ -79,7 +79,7 @@ export function serveAdsJs(req, res) {
             idx = (idx + 1) % slides.length;
             img.src = slides[idx].imageUrl;
             a.href = slides[idx].linkUrl || '#';
-            img.alt = slides[idx].alt || 'Publicidade';
+            img.alt = slides[idx].alt || 'Destaque';
             scheduleNext();
           }, dur);
         }

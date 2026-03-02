@@ -4,7 +4,7 @@ Sistema de gestão de anúncios via embed: banners em slots, rastreio de impress
 
 ## Estrutura
 
-- **backend** – API Node (Express) + MongoDB. Porta **3001**. Serve `/ads.js` (embed) e rotas de auth, slots, banners, track e relatórios.
+- **backend** – API Node (Express) + MongoDB. Porta **3001**. Serve `/promo.js` (embed de destaques; evita ad block) e rotas de auth, slots, banners, track e relatórios.
 - **frontend** – Dashboard React (Vite). Porta **3000**. Login, slots, cadastro de banners, relatórios (impressões/cliques totais e por IP único).
 
 ## Configuração
@@ -30,13 +30,13 @@ npm run dev    # http://localhost:3000
 
 ## Uso do embed (ex.: página Odonnto)
 
-Na página, defina a URL da API (ex.: `http://localhost:3001`) e inclua o script:
+Na página, defina `ODONTO_CONFIG.promoApiUrl` (ou equivalente) e inclua o script (uso de "promo" evita ad block):
 
 ```html
-<script src="<adsApiUrl>/ads.js" data-api="<adsApiUrl>" data-slot="AD_SLOT_1" async></script>
+<script src="<promoApiUrl>/promo.js" data-api="<promoApiUrl>" data-slot="AD_SLOT_1" async></script>
 ```
 
-O script busca o banner ativo do slot, injeta no `.ad-slot__placeholder`, e registra impressão e clique (IP no backend).
+O script busca o banner ativo do slot, injeta no `.promo-slot__placeholder`, e registra impressão e clique (IP no backend).
 
 ## Relatórios
 

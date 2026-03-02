@@ -1,16 +1,16 @@
 /**
  * Odonto Company - Script principal
- * Menu mobile, FAQ accordion, controle de ad slots, acessibilidade
+ * Menu mobile, FAQ accordion, controle de destaques por slot, acessibilidade
  */
 (function () {
   'use strict';
 
-  var config = window.ODONTO_CONFIG || { showAds: true };
+  var config = window.ODONTO_CONFIG || { showPromo: true };
 
-  // ----- Ad Slots: exibir/ocultar conforme config -----
-  function initAdSlots() {
-    var wrappers = document.querySelectorAll('.ad-slot-wrap[data-show-ads]');
-    var show = !!config.showAds;
+  // ----- Destaques por slot: exibir/ocultar conforme config (evita ad block) -----
+  function initPromoSlots() {
+    var wrappers = document.querySelectorAll('.promo-slot-wrap[data-show-promo]');
+    var show = !!config.showPromo;
     wrappers.forEach(function (el) {
       el.setAttribute('data-visible', show ? 'true' : 'false');
     });
@@ -135,7 +135,7 @@
 
   // ----- Inicialização -----
   function init() {
-    initAdSlots();
+    initPromoSlots();
     initHeader();
     initHeaderScroll();
     initScrollReveal();

@@ -24,12 +24,12 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <!-- Manager-ADS: API do serviço de banners (backend). Em produção use a URL do deploy; em local use o backend na porta 3001. -->
+  <!-- Destaques por slot (API backend). Evita termos "ad" para não disparar ad block. -->
   <script>
     window.ODONTO_CONFIG = {
-      showAds: true,
+      showPromo: true,
       debug: false,
-      adsApiUrl: (typeof window !== 'undefined' && window.location && window.location.hostname === 'localhost')
+      promoApiUrl: (typeof window !== 'undefined' && window.location && window.location.hostname === 'localhost')
         ? 'http://localhost:3001'
         : 'https://manager-ads-back-ads.rfxeig.easypanel.host'
     };
@@ -78,16 +78,16 @@
       </div>
     </section>
 
-    <!-- Slots Manager-ADS: cada um carrega /ads.js do backend com data-api e data-slot (AD_SLOT_1..5). -->
-    <!-- AD_SLOT_1: Top Banner - abaixo do hero. Desktop: 970x90/728x90 | Mobile: 320x100 -->
-    <aside class="ad-slot-wrap" data-show-ads>
-      <div class="ad-slot ad-slot--banner ad-slot--1" data-ad-slot="AD_SLOT_1" aria-label="Área de publicidade 1">
-        <span class="ad-slot__label">Publicidade</span>
-        <div class="ad-slot__placeholder"></div>
+    <!-- Destaques por slot: carrega /promo.js do backend (evita ad block). -->
+    <!-- AD_SLOT_1: abaixo do hero. Desktop: 970x90/728x90 | Mobile: 320x100 -->
+    <aside class="promo-slot-wrap" data-show-promo>
+      <div class="promo-slot promo-slot--banner promo-slot--1" data-slot="AD_SLOT_1" aria-label="Destaque 1">
+        <span class="promo-slot__label">Destaque</span>
+        <div class="promo-slot__placeholder"></div>
       </div>
     </aside>
     <script>
-      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showAds&&c.adsApiUrl){var s=document.createElement('script');s.src=c.adsApiUrl+'/ads.js';s.setAttribute('data-api',c.adsApiUrl);s.setAttribute('data-slot','AD_SLOT_1');s.async=true;document.body.appendChild(s);}})();
+      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_1');s.async=true;document.body.appendChild(s);}})();
     </script>
 
     <section class="sobre section" id="sobre" aria-labelledby="sobre-title">
@@ -111,18 +111,17 @@
       </div>
     </section>
 
-    <!-- AD_SLOT_2: Mid-Content - entre Sobre e Tratamentos -->
-    <!-- Desktop: 970x250 / 728x90 | Mobile: 300x250 -->
-    <aside class="ad-slot-wrap ad-slot-wrap--card" data-show-ads>
+    <!-- AD_SLOT_2: entre Sobre e Tratamentos. Desktop: 970x250/728x90 | Mobile: 300x250 -->
+    <aside class="promo-slot-wrap promo-slot-wrap--card" data-show-promo>
       <div class="container">
-        <div class="ad-slot ad-slot--mid ad-slot--2" data-ad-slot="AD_SLOT_2" aria-label="Área de publicidade 2">
-          <span class="ad-slot__label">Publicidade</span>
-          <div class="ad-slot__placeholder"></div>
+        <div class="promo-slot promo-slot--mid promo-slot--2" data-slot="AD_SLOT_2" aria-label="Destaque 2">
+          <span class="promo-slot__label">Destaque</span>
+          <div class="promo-slot__placeholder"></div>
         </div>
       </div>
     </aside>
     <script>
-      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showAds&&c.adsApiUrl){var s=document.createElement('script');s.src=c.adsApiUrl+'/ads.js';s.setAttribute('data-api',c.adsApiUrl);s.setAttribute('data-slot','AD_SLOT_2');s.async=true;document.body.appendChild(s);}})();
+      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_2');s.async=true;document.body.appendChild(s);}})();
     </script>
 
     <section class="tratamentos section" id="tratamentos" aria-labelledby="tratamentos-title">
@@ -146,15 +145,15 @@
             <p>A especialidade de prótese dentária é responsável por reestruturar os tecidos bucais e dentes perdidos, seja por acidentes ou doenças periodontais, por peças artificiais fixas ou removíveis. Trabalhamos com materiais de qualidade para devolver a função e a aparência do sorriso.</p>
           </article>
 
-          <!-- AD_SLOT_3: Inline após 3º card de Tratamentos -->
-          <div class="ad-slot-wrap ad-slot-wrap--inline" data-show-ads>
-            <div class="ad-slot ad-slot--inline ad-slot--3" data-ad-slot="AD_SLOT_3" aria-label="Área de publicidade 3">
-              <span class="ad-slot__label">Promoção</span>
-              <div class="ad-slot__placeholder"></div>
+          <!-- AD_SLOT_3: inline após 3º card de Tratamentos -->
+          <div class="promo-slot-wrap promo-slot-wrap--inline" data-show-promo>
+            <div class="promo-slot promo-slot--inline promo-slot--3" data-slot="AD_SLOT_3" aria-label="Destaque 3">
+              <span class="promo-slot__label">Promoção</span>
+              <div class="promo-slot__placeholder"></div>
             </div>
           </div>
           <script>
-            (function(){var c=window.ODONTO_CONFIG;if(c&&c.showAds&&c.adsApiUrl){var s=document.createElement('script');s.src=c.adsApiUrl+'/ads.js';s.setAttribute('data-api',c.adsApiUrl);s.setAttribute('data-slot','AD_SLOT_3');s.async=true;document.body.appendChild(s);}})();
+            (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_3');s.async=true;document.body.appendChild(s);}})();
           </script>
 
           <article class="card reveal reveal--delay-4">
@@ -199,18 +198,17 @@
       </div>
     </section>
 
-    <!-- AD_SLOT_4: Antes de Depoimentos -->
-    <!-- Desktop: 970x250 | Mobile: 300x250 -->
-    <aside class="ad-slot-wrap ad-slot-wrap--card" data-show-ads>
+    <!-- AD_SLOT_4: antes de Depoimentos. Desktop: 970x250 | Mobile: 300x250 -->
+    <aside class="promo-slot-wrap promo-slot-wrap--card" data-show-promo>
       <div class="container">
-        <div class="ad-slot ad-slot--mid ad-slot--4" data-ad-slot="AD_SLOT_4" aria-label="Área de publicidade 4">
-          <span class="ad-slot__label">Publicidade</span>
-          <div class="ad-slot__placeholder"></div>
+        <div class="promo-slot promo-slot--mid promo-slot--4" data-slot="AD_SLOT_4" aria-label="Destaque 4">
+          <span class="promo-slot__label">Destaque</span>
+          <div class="promo-slot__placeholder"></div>
         </div>
       </div>
     </aside>
     <script>
-      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showAds&&c.adsApiUrl){var s=document.createElement('script');s.src=c.adsApiUrl+'/ads.js';s.setAttribute('data-api',c.adsApiUrl);s.setAttribute('data-slot','AD_SLOT_4');s.async=true;document.body.appendChild(s);}})();
+      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_4');s.async=true;document.body.appendChild(s);}})();
     </script>
 
     <section class="depoimentos section" id="depoimentos" aria-labelledby="depoimentos-title">
@@ -334,18 +332,17 @@
       </div>
     </section>
 
-    <!-- AD_SLOT_5: Footer Banner - acima do footer -->
-    <!-- Desktop: 728x90 | Mobile: 320x100 -->
-    <aside class="ad-slot-wrap" data-show-ads>
+    <!-- AD_SLOT_5: acima do footer. Desktop: 728x90 | Mobile: 320x100 -->
+    <aside class="promo-slot-wrap" data-show-promo>
       <div class="container">
-        <div class="ad-slot ad-slot--banner ad-slot--5" data-ad-slot="AD_SLOT_5" aria-label="Área de publicidade 5">
-          <span class="ad-slot__label">Publicidade</span>
-          <div class="ad-slot__placeholder"></div>
+        <div class="promo-slot promo-slot--banner promo-slot--5" data-slot="AD_SLOT_5" aria-label="Destaque 5">
+          <span class="promo-slot__label">Destaque</span>
+          <div class="promo-slot__placeholder"></div>
         </div>
       </div>
     </aside>
     <script>
-      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showAds&&c.adsApiUrl){var s=document.createElement('script');s.src=c.adsApiUrl+'/ads.js';s.setAttribute('data-api',c.adsApiUrl);s.setAttribute('data-slot','AD_SLOT_5');s.async=true;document.body.appendChild(s);}})();
+      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_5');s.async=true;document.body.appendChild(s);}})();
     </script>
 
     <section class="localizacao section" id="localizacao" aria-labelledby="localizacao-title">

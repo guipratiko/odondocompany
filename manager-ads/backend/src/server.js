@@ -23,7 +23,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Embed script (público, sem auth)
-app.get('/ads.js', serveAdsJs);
+app.get('/promo.js', serveAdsJs);
 app.use('/api/embed', adsEmbedRoutes);
 
 // API
