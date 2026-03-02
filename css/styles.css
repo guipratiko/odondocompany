@@ -360,6 +360,8 @@ body {
   display: none;
   margin: 0 auto;
   overflow: hidden;
+  width: 100%;
+  text-align: center;
 }
 .promo-slot-wrap[data-visible="true"] {
   display: block;
@@ -367,11 +369,10 @@ body {
 
 .promo-slot {
   position: relative;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: fit-content;
   max-width: 100%;
   margin: 0 auto;
   background: var(--color-gray-100);
@@ -396,6 +397,14 @@ body {
   height: 100%;
   min-height: 50px;
   background: linear-gradient(135deg, var(--color-gray-200) 0%, var(--color-gray-100) 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.promo-slot__placeholder > a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* AD_SLOT_1: Top Banner - Mobile 320x100, Desktop 728x90 / 970x90 */
@@ -482,6 +491,7 @@ body {
 .promo-slot-wrap--card .container {
   padding-top: 1rem;
   padding-bottom: 1rem;
+  text-align: center;
 }
 
 /* ----- Hero ----- */
