@@ -6,7 +6,7 @@ import Slots from './pages/Slots';
 import Banners from './pages/Banners';
 import Reports from './pages/Reports';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '');
 
 function getToken() {
   return localStorage.getItem('manager_ads_token');

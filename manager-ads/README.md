@@ -41,3 +41,11 @@ O script busca o banner ativo do slot, injeta no `.ad-slot__placeholder`, e regi
 ## Relatórios
 
 No dashboard (Relatórios): por slot, totais de impressões e cliques, e impressões/cliques por **IP único**. Filtro opcional por data (De/Até).
+
+## Produção
+
+- **Frontend:** build com `npm run build`, servir a pasta `dist/` (ou usar `npm start` com `serve`). Ex.: https://ads.onlyflow.com.br
+- **Backend:** ex.: https://manager-ads-back-ads.rfxeig.easypanel.host
+- **CORS:** no servidor do backend, defina `CORS_ORIGIN` com a origem do frontend (e da página que carrega o embed), separadas por vírgula se houver mais de uma:
+  - Ex.: `CORS_ORIGIN=https://ads.onlyflow.com.br,https://odonto-company-odontocompany.rfxeig.easypanel.host`
+  - Para dev local: `CORS_ORIGIN=http://localhost:3000,https://ads.onlyflow.com.br`

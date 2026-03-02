@@ -12,7 +12,14 @@ import adsEmbedRoutes, { serveAdsJs } from './routes/ads-embed.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
+// CORS: aceita várias origens separadas por vírgula (ex.: http://localhost:3000,https://ads.onlyflow.com.br)
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
+  : ['*'];
+const corsOptions = corsOrigins.length && corsOrigins[0] === '*'
+  ? { origin: '*' }
+  : { origin: (origin, cb) => (corsOrigins.includes(origin) ? cb(null, true) : cb(null, false)), credentials: true };
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Embed script (público, sem auth)
