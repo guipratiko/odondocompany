@@ -24,14 +24,14 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <!-- Config: exibir slots de publicidade e API do Manager-ADS. O script correto é /ads.js (não ads-carousel.js). -->
+  <!-- Manager-ADS: API do serviço de banners (backend). Em produção use a URL do deploy; em local use o backend na porta 3001. -->
   <script>
     window.ODONTO_CONFIG = {
       showAds: true,
       debug: false,
-      adsApiUrl: typeof window !== 'undefined' && window.location && window.location.hostname !== 'localhost'
-        ? 'https://manager-ads-back-ads.rfxeig.easypanel.host'
-        : 'http://localhost:3001'
+      adsApiUrl: (typeof window !== 'undefined' && window.location && window.location.hostname === 'localhost')
+        ? 'http://localhost:3001'
+        : 'https://manager-ads-back-ads.rfxeig.easypanel.host'
     };
   </script>
 
@@ -80,8 +80,8 @@
       </div>
     </section>
 
-    <!-- AD_SLOT_1: Top Banner - abaixo do hero -->
-    <!-- Desktop: 970x90 / 728x90 | Mobile: 320x100 -->
+    <!-- Slots Manager-ADS: cada um carrega /ads.js do backend com data-api e data-slot (AD_SLOT_1..5). -->
+    <!-- AD_SLOT_1: Top Banner - abaixo do hero. Desktop: 970x90/728x90 | Mobile: 320x100 -->
     <aside class="ad-slot-wrap" data-show-ads>
       <div class="ad-slot ad-slot--banner ad-slot--1" data-ad-slot="AD_SLOT_1" aria-label="Área de publicidade 1">
         <span class="ad-slot__label">Publicidade</span>
