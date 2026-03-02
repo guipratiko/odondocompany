@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
   try {
     const { slotId } = req.query;
     const filter = slotId ? { slotId } : {};
-    const banners = await Banner.find(filter).populate('slotId', 'code name').sort({ createdAt: -1 }).lean();
+    const banners = await Banner.find(filter).populate('slotId', 'code name recommendedSizes').sort({ createdAt: -1 }).lean();
     res.json(banners);
   } catch (err) {
     console.error(err);
@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { slotId, imageUrl, linkUrl, alt, active } = req.body;
+    const { slotId, imageUrl, linkUrl, alt, active, device, width, height } = req.body;
     if (!slotId || !imageUrl?.trim()) {
       return res.status(400).json({ error: 'slotId e imageUrl obrigatórios' });
     }
@@ -32,8 +32,11 @@ router.post('/', async (req, res) => {
       linkUrl: linkUrl?.trim() || '',
       alt: alt?.trim() || '',
       active: active !== false,
+      device: ['any', 'mobile', 'desktop'].includes(device) ? device : 'any',
+      width: width != null && Number(width) >= 0 ? Number(width) : null,
+      height: height != null && Number(height) >= 0 ? Number(height) : null,
     });
-    await banner.populate('slotId', 'code name');
+    await banner.populate('slotId', 'code name recommendedSizes');
     res.status(201).json(banner);
   } catch (err) {
     console.error(err);
@@ -43,12 +46,17 @@ router.post('/', async (req, res) => {
 
 router.patch('/:id', async (req, res) => {
   try {
-    const { imageUrl, linkUrl, alt, active } = req.body;
-    const banner = await Banner.findByIdAndUpdate(
-      req.params.id,
-      { ...(imageUrl !== undefined && { imageUrl: imageUrl.trim() }), ...(linkUrl !== undefined && { linkUrl: linkUrl.trim() }), ...(alt !== undefined && { alt: alt.trim() }), ...(active !== undefined && { active }) },
-      { new: true }
-    ).populate('slotId', 'code name');
+    const { imageUrl, linkUrl, alt, active, device, width, height } = req.body;
+    const update = {};
+    if (imageUrl !== undefined) update.imageUrl = imageUrl.trim();
+    if (linkUrl !== undefined) update.linkUrl = linkUrl.trim();
+    if (alt !== undefined) update.alt = alt.trim();
+    if (active !== undefined) update.active = active;
+    if (['any', 'mobile', 'desktop'].includes(device)) update.device = device;
+    if (width != null) update.width = Number(width) >= 0 ? Number(width) : null;
+    if (height != null) update.height = Number(height) >= 0 ? Number(height) : null;
+    const banner = await Banner.findByIdAndUpdate(req.params.id, update, { new: true })
+      .populate('slotId', 'code name recommendedSizes');
     if (!banner) return res.status(404).json({ error: 'Banner não encontrado' });
     res.json(banner);
   } catch (err) {

@@ -7,8 +7,20 @@ export default function Banners() {
   const [slotFilter, setSlotFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [form, setForm] = useState({ slotId: '', imageUrl: '', linkUrl: '', alt: '', active: true });
+  const [form, setForm] = useState({ slotId: '', imageUrl: '', linkUrl: '', alt: '', active: true, device: 'any', width: '', height: '', sizePreset: '' });
   const [saving, setSaving] = useState(false);
+
+  const selectedSlot = form.slotId ? slots.find((s) => s._id === form.slotId) : null;
+  const slotSizes = selectedSlot?.recommendedSizes || [];
+
+  const applySizePreset = (presetValue) => {
+    if (!presetValue || presetValue === 'custom') {
+      setForm((f) => ({ ...f, sizePreset: presetValue || '', device: presetValue === 'custom' ? f.device : 'any', width: '', height: '' }));
+      return;
+    }
+    const [device, width, height] = presetValue.split('-');
+    setForm((f) => ({ ...f, sizePreset: presetValue, device: device || 'any', width: width || '', height: height || '' }));
+  };
 
   const loadSlots = () => apiFetch('/api/slots').then((r) => r.json()).then(setSlots);
   const loadBanners = () => apiFetch('/api/banners').then((r) => r.json()).then(setBanners);
@@ -26,14 +38,17 @@ export default function Banners() {
     setSaving(true);
     setError('');
     try {
+      const payload = { ...form };
+      payload.width = form.width === '' ? null : Number(form.width);
+      payload.height = form.height === '' ? null : Number(form.height);
       const res = await apiFetch('/api/banners', {
         method: 'POST',
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const d = await res.json(); setError(d.error || 'Erro'); return;
       }
-      setForm({ slotId: '', imageUrl: '', linkUrl: '', alt: '', active: true });
+      setForm({ slotId: '', imageUrl: '', linkUrl: '', alt: '', active: true, device: 'any', width: '', height: '', sizePreset: '' });
       loadBanners();
     } catch {
       setError('Falha ao salvar');
@@ -71,13 +86,65 @@ export default function Banners() {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Slot</label>
-            <select value={form.slotId} onChange={(e) => setForm((f) => ({ ...f, slotId: e.target.value }))} required>
-              <option value="">Selecione</option>
+            <select
+              value={form.slotId}
+              onChange={(e) => setForm((f) => ({ ...f, slotId: e.target.value, sizePreset: '', width: '', height: '', device: 'any' }))}
+              required
+            >
+              <option value="">Selecione o slot</option>
               {slots.map((s) => (
                 <option key={s._id} value={s._id}>{s.code} – {s.name}</option>
               ))}
             </select>
           </div>
+          {form.slotId && (
+            <div className="form-group">
+              <label>Tamanho (conforme o slot)</label>
+              {slotSizes.length > 0 ? (
+                <>
+                  <select
+                    value={form.sizePreset || (form.width && form.height ? 'custom' : '')}
+                    onChange={(e) => applySizePreset(e.target.value)}
+                  >
+                    <option value="">Selecione o tamanho</option>
+                    {slotSizes.map((s, i) => (
+                      <option key={i} value={`${s.device}-${s.width}-${s.height}`}>
+                        {s.device === 'mobile' ? 'Mobile' : 'Desktop'} — {s.width}×{s.height} px
+                      </option>
+                    ))}
+                    <option value="custom">Personalizado (informar abaixo)</option>
+                  </select>
+                  {form.sizePreset && form.sizePreset !== 'custom' && (
+                    <p className="form-hint" style={{ marginTop: 4, fontSize: '0.875rem', color: '#6b7280' }}>
+                      {form.device === 'mobile' ? 'Mobile' : 'Desktop'} — {form.width}×{form.height} px
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: 8 }}>Nenhum tamanho pré-definido para este slot. Use personalizado.</p>
+              )}
+              {(form.sizePreset === 'custom' || slotSizes.length === 0) && (
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+                  <div className="form-group" style={{ flex: '1 1 100px' }}>
+                    <label>Dispositivo</label>
+                    <select value={form.device} onChange={(e) => setForm((f) => ({ ...f, device: e.target.value }))}>
+                      <option value="any">Todos (any)</option>
+                      <option value="mobile">Mobile</option>
+                      <option value="desktop">Desktop</option>
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ flex: '1 1 80px' }}>
+                    <label>Largura (px)</label>
+                    <input type="number" min="0" placeholder="ex.: 728" value={form.width} onChange={(e) => setForm((f) => ({ ...f, width: e.target.value }))} />
+                  </div>
+                  <div className="form-group" style={{ flex: '1 1 80px' }}>
+                    <label>Altura (px)</label>
+                    <input type="number" min="0" placeholder="ex.: 90" value={form.height} onChange={(e) => setForm((f) => ({ ...f, height: e.target.value }))} />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <div className="form-group">
             <label>URL da imagem</label>
             <input value={form.imageUrl} onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} placeholder="https://…" required />
@@ -111,6 +178,8 @@ export default function Banners() {
           <thead>
             <tr>
               <th>Slot</th>
+              <th>Dispositivo</th>
+              <th>Tamanho</th>
               <th>Imagem</th>
               <th>Link</th>
               <th>Ativo</th>
@@ -121,6 +190,8 @@ export default function Banners() {
             {filtered.map((b) => (
               <tr key={b._id}>
                 <td>{b.slotId?.code || b.slotId}</td>
+                <td>{b.device === 'any' ? 'Todos' : b.device === 'mobile' ? 'Mobile' : 'Desktop'}</td>
+                <td>{(b.width != null || b.height != null) ? `${b.width ?? '?'}×${b.height ?? '?'}` : '–'}</td>
                 <td><a href={b.imageUrl} target="_blank" rel="noopener noreferrer">Abrir</a></td>
                 <td>{b.linkUrl ? <a href={b.linkUrl} target="_blank" rel="noopener noreferrer">Link</a> : '–'}</td>
                 <td><button type="button" className="btn btn--small btn--secondary" onClick={() => toggleActive(b)}>{b.active ? 'Ativo' : 'Inativo'}</button></td>

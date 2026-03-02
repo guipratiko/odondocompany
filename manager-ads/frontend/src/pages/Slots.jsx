@@ -27,6 +27,7 @@ export default function Slots() {
             <tr>
               <th>Código</th>
               <th>Nome</th>
+              <th>Tamanhos recomendados</th>
             </tr>
           </thead>
           <tbody>
@@ -34,6 +35,11 @@ export default function Slots() {
               <tr key={s._id}>
                 <td><code>{s.code}</code></td>
                 <td>{s.name}</td>
+                <td style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                  {s.recommendedSizes?.length
+                    ? s.recommendedSizes.map((x) => `${x.device}: ${x.width}×${x.height}`).join(' · ')
+                    : '–'}
+                </td>
               </tr>
             ))}
           </tbody>

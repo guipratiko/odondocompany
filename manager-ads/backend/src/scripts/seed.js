@@ -5,11 +5,11 @@ import User from '../models/User.js';
 import Slot from '../models/Slot.js';
 
 const SLOTS = [
-  { code: 'AD_SLOT_1', name: 'Top Banner' },
-  { code: 'AD_SLOT_2', name: 'Mid-Content' },
-  { code: 'AD_SLOT_3', name: 'Inline Promo' },
-  { code: 'AD_SLOT_4', name: 'Antes Depoimentos' },
-  { code: 'AD_SLOT_5', name: 'Footer Banner' },
+  { code: 'AD_SLOT_1', name: 'Top Banner', recommendedSizes: [{ device: 'mobile', width: 320, height: 100 }, { device: 'desktop', width: 728, height: 90 }, { device: 'desktop', width: 970, height: 90 }] },
+  { code: 'AD_SLOT_2', name: 'Mid-Content', recommendedSizes: [{ device: 'mobile', width: 300, height: 250 }, { device: 'desktop', width: 728, height: 90 }, { device: 'desktop', width: 970, height: 250 }] },
+  { code: 'AD_SLOT_3', name: 'Inline Promo', recommendedSizes: [{ device: 'mobile', width: 320, height: 100 }, { device: 'desktop', width: 728, height: 90 }] },
+  { code: 'AD_SLOT_4', name: 'Antes Depoimentos', recommendedSizes: [{ device: 'mobile', width: 300, height: 250 }, { device: 'desktop', width: 970, height: 250 }] },
+  { code: 'AD_SLOT_5', name: 'Footer Banner', recommendedSizes: [{ device: 'mobile', width: 320, height: 100 }, { device: 'desktop', width: 728, height: 90 }] },
 ];
 
 async function seed() {
