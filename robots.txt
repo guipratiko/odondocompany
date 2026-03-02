@@ -1,0 +1,8 @@
+# Odonto Company - robots.txt
+# Quando tiver domínio, substitua BASE_URL (ex: https://odontocompany.com)
+
+User-agent: *
+Allow: /
+
+# Sitemap (descomente e ajuste BASE_URL quando o domínio estiver definido)
+# Sitemap: BASE_URL/sitemap.xml
