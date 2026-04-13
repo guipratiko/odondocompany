@@ -16,8 +16,20 @@ Os arquivos `.env` já estão criados. Backend: `manager-ads/backend/.env`. Fron
 ```bash
 cd manager-ads/backend
 npm install
-npm run seed   # Cria usuário guilherme.santos@me.com e slots AD_SLOT_1..5
-npm run dev    # http://localhost:3001
+npm run seed       # Usuário + slots AD_SLOT_1..5
+npm run seed:user  # Só cria/atualiza o usuário de login (veja abaixo)
+npm run dev        # http://localhost:3001
+```
+
+**Login do dashboard (padrão):**
+
+- **Email:** `guilherme.santos@me.com`
+- **Senha:** `Bingo3945"!`
+
+Para outro email/senha no seed (sem commitar segredo), use variáveis de ambiente ao rodar:
+
+```bash
+SEED_USER_EMAIL=outro@email.com SEED_USER_PASSWORD='suaSenha' npm run seed:user
 ```
 
 ### Frontend
@@ -44,7 +56,26 @@ No dashboard (Relatórios): por slot, totais de impressões e cliques, e impress
 
 ## Produção
 
-- **Frontend:** build com `npm run build`, servir a pasta `dist/` (ou usar `npm start` com `serve`). Ex.: https://ads.onlyflow.com.br
+### Frontend (obrigatório: pasta `dist`)
+
+O `index.html` **do repositório** (com `/src/main.jsx`) só funciona com `npm run dev`. Em produção o navegador precisa do **`npm run build`**, que gera `dist/` com `.js` e MIME correto.
+
+**Se aparecer:** `Failed to load module script` ou `MIME type of ""` em `/src/main.jsx` → o servidor está apontando para a **raiz do frontend** em vez de **`dist/`**.
+
+No **EasyPanel** (recomendado — evita Caddy servindo a pasta errada):
+
+1. Tipo de app: **Node.js** (não só “site estático” com root na raiz do repo).
+2. **Diretório do app:** `manager-ads/frontend` (ou onde está o `package.json` do frontend).
+3. **Instalar:** `npm ci` (ou `npm install`).
+4. **Build:** `npm run build` (gera `dist/`).
+5. **Comando de start:** `npm start` → sobe **`scripts/serve-dist.mjs`**, que lê **`dist/`** e define **Content-Type** correto para `.js` (resolve MIME vazio).
+6. **Porta:** a que o painel expõe (ex.: 3000); o script usa **`PORT`** do ambiente se existir.
+
+Se insistir em **Caddy estático**, a **root** tem que ser **`dist`** (não a pasta do código-fonte).
+
+**Local após build:** `npm start` ou `npm run start:serve` (pacote `serve`).
+
+- **Frontend:** build com `npm run build`, servir **somente** a pasta `dist/`. Ex.: https://ads.onlyflow.com.br
 - **Backend:** ex.: https://manager-ads-back-ads.rfxeig.easypanel.host
 - **CORS:** no servidor do backend, defina `CORS_ORIGIN` com a origem do frontend (e da página que carrega o embed), separadas por vírgula se houver mais de uma:
   - Ex.: `CORS_ORIGIN=https://ads.onlyflow.com.br,https://odonto-company-odontocompany.rfxeig.easypanel.host`

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "serve -s dist -l 3000"
+    "start": "node scripts/serve-dist.mjs",
+    "start:serve": "serve -s dist -l 3000"
   },
   "dependencies": {
     "react": "^18.2.0",
