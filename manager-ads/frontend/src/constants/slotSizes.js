@@ -24,6 +24,7 @@ export const SLOT_SIZES_BY_CODE = {
   AD_SLOT_5: [
     { device: 'mobile', width: 320, height: 100 },
     { device: 'desktop', width: 728, height: 90 },
+    { device: 'desktop', width: 970, height: 90 },
   ],
 };
 

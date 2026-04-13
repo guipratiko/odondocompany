@@ -488,16 +488,22 @@ body {
   }
 }
 
-/* AD_SLOT_5: Footer banner - Mobile 320x100, Desktop 728x90 */
+/* AD_SLOT_5: Footer — mobile 320×100; desktop 728×90; ≥1024px 970×90 (igual topo) */
 .promo-slot--5 .promo-slot__placeholder {
   height: 100px;
   width: 320px;
   max-width: 100%;
+  margin: 0 auto;
 }
 @media (min-width: 768px) {
   .promo-slot--5 .promo-slot__placeholder {
     height: 90px;
     width: 728px;
+  }
+}
+@media (min-width: 1024px) {
+  .promo-slot--5 .promo-slot__placeholder {
+    width: 970px;
   }
 }
 
