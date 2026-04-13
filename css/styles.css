@@ -402,9 +402,17 @@ body {
   align-items: center;
 }
 .promo-slot__placeholder > a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: block;
+  width: 100%;
+  height: 100%;
+  line-height: 0;
+}
+.promo-slot__placeholder > a img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
 }
 
 /* AD_SLOT_1: Top Banner - Mobile 320x100, Desktop 728x90 / 970x90 */
@@ -444,13 +452,21 @@ body {
   }
 }
 
-/* AD_SLOT_3: Inline promo block */
+/* AD_SLOT_3: Inline — mesmo padrão do seed: mobile 320×100, desktop 728×90 */
 .promo-slot-wrap--inline {
   grid-column: 1 / -1;
 }
 .promo-slot--3 .promo-slot__placeholder {
-  height: 120px;
+  height: 100px;
+  width: 320px;
   max-width: 100%;
+  margin: 0 auto;
+}
+@media (min-width: 768px) {
+  .promo-slot--3 .promo-slot__placeholder {
+    height: 90px;
+    width: 728px;
+  }
 }
 
 /* AD_SLOT_4: Before testimonials - same as 2 */
