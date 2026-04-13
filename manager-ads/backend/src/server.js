@@ -19,18 +19,22 @@ const corsOrigins = process.env.CORS_ORIGIN
 const corsOptions = corsOrigins.length && corsOrigins[0] === '*'
   ? { origin: '*' }
   : { origin: (origin, cb) => (corsOrigins.includes(origin) ? cb(null, true) : cb(null, false)), credentials: true };
-app.use(cors(corsOptions));
+
 app.use(express.json());
 
-// Embed script (público, sem auth)
+// Embed + track: qualquer origem (sites clientes carregam promo.js e fazem fetch cross-origin)
+const embedCors = cors({ origin: '*' });
 app.get('/promo.js', serveAdsJs);
-app.use('/api/embed', adsEmbedRoutes);
+app.use('/api/embed', embedCors, adsEmbedRoutes);
+app.use('/api/track', embedCors, trackRoutes);
+
+// Painel / API com cookie ou origens conhecidas
+app.use(cors(corsOptions));
 
 // API
 app.use('/api/auth', authRoutes);
 app.use('/api/slots', slotRoutes);
 app.use('/api/banners', bannerRoutes);
-app.use('/api/track', trackRoutes);
 app.use('/api/reports', reportRoutes);
 
 async function start() {

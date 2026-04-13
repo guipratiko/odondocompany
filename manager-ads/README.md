@@ -77,6 +77,5 @@ Se insistir em **Caddy estático**, a **root** tem que ser **`dist`** (não a pa
 
 - **Frontend:** build com `npm run build`, servir **somente** a pasta `dist/`. Ex.: https://ads.onlyflow.com.br
 - **Backend:** ex.: https://duplloflow-ads-backsercice.qyspkj.easypanel.host
-- **CORS:** no servidor do backend, defina `CORS_ORIGIN` com a origem do frontend (e da página que carrega o embed), separadas por vírgula se houver mais de uma:
-  - Ex.: `CORS_ORIGIN=https://ads.onlyflow.com.br,https://odonto-company-odontocompany.rfxeig.easypanel.host`
-  - Para dev local: `CORS_ORIGIN=http://localhost:3000,https://ads.onlyflow.com.br`
+- **CORS:** `/api/embed` e `/api/track` aceitam **qualquer origem** (sites que embutem o `promo.js`). A variável `CORS_ORIGIN` vale para o **resto da API** (login, banners, slots, relatórios): use a origem do dashboard React.
+  - Ex.: `CORS_ORIGIN=http://localhost:3000,https://ads.onlyflow.com.br`
