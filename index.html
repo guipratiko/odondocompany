@@ -24,15 +24,30 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <!-- Destaques por slot (API backend). Evita termos "ad" para não disparar ad block. -->
+  <!-- Destaques por slot: API backend DuplloFlow (sem barra final na URL). -->
   <script>
-    window.ODONTO_CONFIG = {
-      showPromo: true,
-      debug: false,
-      promoApiUrl: (typeof window !== 'undefined' && window.location && window.location.hostname === 'localhost')
-        ? 'http://localhost:3001'
-        : 'https://duplloflow-ads-backsercice.qyspkj.easypanel.host'
-    };
+    (function () {
+      var isLocal = typeof window !== 'undefined' && window.location && window.location.hostname === 'localhost';
+      var base = isLocal ? 'http://localhost:3001' : 'https://duplloflow-ads-backsercice.qyspkj.easypanel.host';
+      base = String(base).replace(/\/+$/, '');
+      window.ODONTO_CONFIG = {
+        showPromo: true,
+        debug: false,
+        promoApiUrl: base
+      };
+      /** Carrega /promo.js para um data-slot (ex.: AD_SLOT_1). */
+      window.loadPromoSlot = function (slotCode) {
+        var c = window.ODONTO_CONFIG;
+        if (!c || !c.showPromo || !c.promoApiUrl || !slotCode) return;
+        var api = c.promoApiUrl;
+        var s = document.createElement('script');
+        s.src = api + '/promo.js';
+        s.setAttribute('data-api', api);
+        s.setAttribute('data-slot', slotCode);
+        s.async = true;
+        document.body.appendChild(s);
+      };
+    })();
   </script>
 
   <a href="#main" class="skip-link">Ir para o conteúdo principal</a>
@@ -86,9 +101,7 @@
         <div class="promo-slot__placeholder"></div>
       </div>
     </aside>
-    <script>
-      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_1');s.async=true;document.body.appendChild(s);}})();
-    </script>
+    <script>loadPromoSlot('AD_SLOT_1');</script>
 
     <section class="sobre section" id="sobre" aria-labelledby="sobre-title">
       <div class="container">
@@ -120,9 +133,7 @@
         </div>
       </div>
     </aside>
-    <script>
-      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_2');s.async=true;document.body.appendChild(s);}})();
-    </script>
+    <script>loadPromoSlot('AD_SLOT_2');</script>
 
     <section class="tratamentos section" id="tratamentos" aria-labelledby="tratamentos-title">
       <div class="container">
@@ -152,9 +163,7 @@
               <div class="promo-slot__placeholder"></div>
             </div>
           </div>
-          <script>
-            (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_3');s.async=true;document.body.appendChild(s);}})();
-          </script>
+          <script>loadPromoSlot('AD_SLOT_3');</script>
 
           <article class="card reveal reveal--delay-4">
             <img src="img/odontopediatria.webp" alt="Odontopediatria" class="card__img" width="400" height="260" loading="lazy">
@@ -207,9 +216,7 @@
         </div>
       </div>
     </aside>
-    <script>
-      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_4');s.async=true;document.body.appendChild(s);}})();
-    </script>
+    <script>loadPromoSlot('AD_SLOT_4');</script>
 
     <section class="depoimentos section" id="depoimentos" aria-labelledby="depoimentos-title">
       <div class="container">
@@ -341,9 +348,7 @@
         </div>
       </div>
     </aside>
-    <script>
-      (function(){var c=window.ODONTO_CONFIG;if(c&&c.showPromo&&c.promoApiUrl){var s=document.createElement('script');s.src=c.promoApiUrl+'/promo.js';s.setAttribute('data-api',c.promoApiUrl);s.setAttribute('data-slot','AD_SLOT_5');s.async=true;document.body.appendChild(s);}})();
-    </script>
+    <script>loadPromoSlot('AD_SLOT_5');</script>
 
     <section class="localizacao section" id="localizacao" aria-labelledby="localizacao-title">
       <div class="container">

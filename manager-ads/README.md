@@ -76,7 +76,7 @@ Se insistir em **Caddy estático**, a **root** tem que ser **`dist`** (não a pa
 **Local após build:** `npm start` ou `npm run start:serve` (pacote `serve`).
 
 - **Frontend:** build com `npm run build`, servir **somente** a pasta `dist/`. Ex.: https://ads.onlyflow.com.br
-- **Backend:** ex.: https://manager-ads-back-ads.rfxeig.easypanel.host
+- **Backend:** ex.: https://duplloflow-ads-backsercice.qyspkj.easypanel.host
 - **CORS:** no servidor do backend, defina `CORS_ORIGIN` com a origem do frontend (e da página que carrega o embed), separadas por vírgula se houver mais de uma:
   - Ex.: `CORS_ORIGIN=https://ads.onlyflow.com.br,https://odonto-company-odontocompany.rfxeig.easypanel.host`
   - Para dev local: `CORS_ORIGIN=http://localhost:3000,https://ads.onlyflow.com.br`
